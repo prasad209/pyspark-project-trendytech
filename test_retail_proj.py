@@ -1,7 +1,8 @@
 import pytest
 from lib.DataReader import read_customers, read_orders
-from lib.DataManipulation import filter_closed_orders
+from lib.DataManipulation import filter_closed_orders , join_orders_customers
 from lib.ConfigReader import get_app_config
+
 #fixtures :  we know spark session is always required , which is part of the setup,
 # # we dont need to write it in every test case ,its a part of fixture..
 #when we define a test case , the fixture variable is written in ()
@@ -18,9 +19,6 @@ def test_read_customers(spark):
     assert customers_count == 12435
 
 #similarly , lets go for orders
-
-
-
 def test_read_orders(spark):
     orders_count= read_orders(spark,"LOCAL").count()
     assert orders_count == 68884
@@ -37,8 +35,6 @@ def test_filter_closed_orders(spark):
     assert filtered_count_orders == 7556
 
 
-from lib.DataManipulation import join_orders_customers
-
 def test_join_orders_customers(spark):
     orders_df=read_orders(spark,"LOCAL")
     customers_df=read_customers(spark,"LOCAL")
@@ -51,7 +47,16 @@ def test_get_app_config():
     assert app_conf["orders.file.path"] == "data/orders.csv"
 
 
-    
+def count_orders_state(joined_df):
+    return joined_df.groupBy('state').count()
+
+def test_count_orders_state(spark):
+    customers_df=read_customers(spark,"LOCAL")
+    customers_df_statewise_cnt=count_orders_state(customers_df)
+    actual_result=customers_df_statewise_cnt.collect()
+    expected_result= ""
+    assert actual_result == expected_result
+
 
 
 
