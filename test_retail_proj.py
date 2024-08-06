@@ -50,12 +50,11 @@ def test_get_app_config():
 def count_orders_state(joined_df):
     return joined_df.groupBy('state').count()
 
-def test_count_orders_state(spark):
+def test_count_orders_state(spark,expected_results):
     customers_df=read_customers(spark,"LOCAL")
     customers_df_statewise_cnt=count_orders_state(customers_df)
-    actual_result=customers_df_statewise_cnt.collect()
-    expected_result= ""
-    assert actual_result == expected_result
+    actual_result=customers_df_statewise_cnt
+    assert actual_result.collect() == expected_results.collect()
 
 
 
